@@ -38,11 +38,11 @@ uniqueWithOrderSet = f S.empty []
 uniqueWithOrderSetState :: [T.Text] -> [T.Text]
 uniqueWithOrderSetState = error "not implemented"
 
-step :: S.Set T.Text -> ([T.Text], S.Set T.Text)
+step :: S.Set T.Text -> (T.Text, S.Set T.Text)
 step = undefined
 
---stepS :: StateT (S.Set T.Text) [T.Text]
---stepS = state step
+stepS :: State (S.Set T.Text) T.Text
+stepS = state step
 
 --h :: [T.Text] -> State (S.Set T.Text) [T.Text]
 --h = sequence t (m a)

@@ -4,17 +4,27 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Main where
 
 import Data.FingerTree
+    ( (><), split, viewl, (|>), FingerTree, Measured(..), ViewL((:<)) )
 import Protolude
+    ( ($),
+      Eq,
+      Num,
+      Ord((>=), (>)),
+      Show,
+      Foldable(toList),
+      Monoid(mempty),
+      Int,
+      Maybe(Just),
+      IO,
+      (.),
+      Last(Last) )
 import Test.Hspec (describe, hspec, it, shouldBe)
-import qualified Debug.Trace as Tr
 
 type Ordered a = FingerTree (Last a) a
 
@@ -24,12 +34,12 @@ insert x xs =
   let (l, r) = split (> Last (Just x)) xs
    in (l |> x) >< r
 
-remove :: (Measured (Last a) a, Ord a) => a -> Ordered a -> Ordered a
+remove :: Show a => (Measured (Last a) a, Ord a) => a -> Ordered a -> Ordered a
 remove x xs =
   let (l, r) = split (>= Last (Just x)) xs
-      (_, r') = split (> Last (Just x)) r
-  in case viewl r of
-     x' :< _ -> if x' == x then (l |> x) >< r' else l >< r'
+      (l', r') = split (> Last (Just x)) r
+  in case viewl l' of
+     _ :< x'' -> l >< x'' >< r' 
      _ -> l >< r'
 
 newtype TestInt = TestInt Int deriving (Num, Show, Eq, Ord)
