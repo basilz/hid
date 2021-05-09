@@ -1,12 +1,12 @@
 module Main where
 
+import Control.Monad.Trans.State.Lazy
 import Data.Char (isLetter)
 import Data.List (group, sort)
 import qualified Data.Set as S
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import System.Environment (getArgs)
-import Control.Monad.Trans.State.Lazy
 
 -- as in the book
 uniqueWords :: [T.Text] -> [T.Text]
@@ -27,25 +27,19 @@ uniqueWithOrder = f []
 
 -- keep appearence order, use Set, no Monad State
 uniqueWithOrderSet :: [T.Text] -> [T.Text]
-uniqueWithOrderSet = f S.empty []
+uniqueWithOrderSet xs = fst $ foldl f ([], S.empty) xs
  where
-  f s acc [] = acc
-  f s acc (x : xs)
-    | S.member x s = f s acc xs
-    | otherwise = f (S.insert x s) (x : acc) xs
+  f (acc, s) w
+    | S.member w s = (acc, s)
+    | otherwise = (w : acc, S.insert w s)
 
 -- keep appearence order, use Set, use Monad State
 uniqueWithOrderSetState :: [T.Text] -> [T.Text]
-uniqueWithOrderSetState = error "not implemented"
-
-step :: S.Set T.Text -> (T.Text, S.Set T.Text)
-step = undefined
-
-stepS :: State (S.Set T.Text) T.Text
-stepS = state step
-
---h :: [T.Text] -> State (S.Set T.Text) [T.Text]
---h = sequence t (m a)
+uniqueWithOrderSetState xs = fst $ execState (traverse (modify . f) xs) ([], S.empty)
+ where
+  f w (acc, s)
+    | S.member w s = (acc, s)
+    | otherwise = (w : acc, S.insert w s)
 
 main :: IO ()
 main = do
