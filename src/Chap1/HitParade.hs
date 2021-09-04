@@ -14,10 +14,8 @@ module Main where
 import Data.FingerTree
 import Data.Map (Map)
 import qualified Data.Map.Strict as M
-import Data.Semigroup (Max (Max))
 import Protolude
 import Test.Hspec (describe, hspec, it, shouldBe)
-import qualified Debug.Trace as Tr
 
 -- how many times a song has been voted
 newtype Score = Score Int
@@ -68,10 +66,10 @@ addVote :: Song -> HitParade -> HitParade
 addVote song HitParade {..}  = 
   let scr = fromMaybe 0 $ M.lookup song scores
       (l, r) = split (>= Last (Just . sortHit $ Hit song scr)) parade
-      (_, r') = split (> Last (Just . sortHit $ Hit song scr)) parade
-   in case viewl r of
-      Hit sng sc :< _ -> HitParade (M.update (\s -> Just $ s + 1) song scores) ((l >< r') |> Hit sng (sc + 1))
-      _ -> HitParade (M.insert song 1 scores) (l |> Hit song 1)
+      (l', r') = split (> Last (Just . sortHit $ Hit song scr)) r
+   in case viewl l' of
+      Hit sng sc :< _ -> HitParade (M.update (\s -> Just $ s + 1) song scores) ((l |> Hit sng (sc + 1)) >< r')
+      _ -> HitParade (M.insert song 1 scores) (l >< (Hit song 1 <| r))
 
 -- extract 'k' highest scoring Song , O (1) * k
 hits :: Int -> HitParade -> [Hit]
@@ -100,3 +98,16 @@ main = hspec do
       shouldBe
         do hits 10 (addVote "route 66" $ addVote "route 66" $ addVote "message in a bottle" noParade)
         do [Hit "route 66" 2, Hit "message in a bottle" 1]
+    it "handles 3 votes for 2 different songs lexicographically swapped" do
+      shouldBe
+        do hits 10 (addVote "message in a bottle" $ addVote "message in a bottle" $ addVote "route 66" noParade)
+        do [Hit "route 66" 1, Hit "message in a bottle" 2]
+    it "handles 3 votes for 2 different songs another permutation" do
+      shouldBe
+        do hits 10 (addVote "route 66" $ addVote "message in a bottle" $ addVote "route 66" noParade)
+        do [Hit "route 66" 2, Hit "message in a bottle" 1]
+    it "handles 3 votes for 2 different songs still another permutation" do
+      shouldBe
+        do hits 10 (addVote "message in a bottle" $ addVote "route 66" $ addVote "message in a bottle" noParade)
+        do [Hit "route 66" 1, Hit "message in a bottle" 2]
+

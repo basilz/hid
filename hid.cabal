@@ -44,6 +44,7 @@ executable vocab3
   build-depends:       base >= 4.7 && < 5
                      , text
                      , fmt
+                     , fingertree
 
 -- test-suite ordered-list-test
 --   type: exitcode-stdio-1.0
@@ -80,3 +81,79 @@ executable radar
                      , fmt
                      , text
                      , random >= 1.2.0
+
+executable bootstrap
+  hs-source-dirs:      src/Chap5
+  main-is:             Bootstrap.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , fmt
+                     , text
+                     , random >= 1.2.0
+                     , foldl
+                     , containers
+
+executable mc
+  hs-source-dirs:      src/Chap5
+  main-is:             MC.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , fmt
+                     , text
+                     , foldl
+                     , containers
+                     , normaldistribution
+
+executable stock
+  hs-source-dirs:      src/Chap5
+  main-is:             Stock.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , fmt
+                     , text
+                     , foldl
+                     , containers
+                     , colonnade
+                     , lens
+                     , bytestring
+                     , time
+                     , protolude
+                     , streaming
+                     , cassava
+                     , Chart
+                     , Chart-diagrams
+
+executable du
+  hs-source-dirs:      src/Chap6
+  main-is:             Main.hs
+  other-modules:       DiskUsage
+                     , AppTypes
+                     , AppRTWTST
+                     , Utils
+                     , DirTree
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , unix-compat
+                     , mtl
+                     , filepath
+                     , directory
+                     , extra
+                     , optparse-applicative
+                     , text
+                     , text-show
+
+library 
+  hs-source-dirs:      src/Chap5
+                     , src/Chap6
+  exposed-modules:     Chap5.Lardo
+                     , Chap5.Mealy
+                     , Chap5.MooreComonad
+                     , Chap6.EvalRPN
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , protolude
+                     , lens
+                     , foldl
+                     , comonad
+                     , hspec
+                     , transformers
